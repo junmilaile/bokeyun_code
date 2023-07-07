@@ -24,16 +24,20 @@
 	},
 	
 	"tabBar": {
-		"color": "",
+		"color": "#888",
 		"selectedColor": "#3c9cff",
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页"
+				"text": "首页",
+				"iconPath": "static/images/quanzi.png",
+				"selectedIconPath": "static/images/quanzi-fill.png"
 			},
 			{
 				"pagePath": "pages/self/self",
-				"text": "我的"
+				"text": "我的",
+				"iconPath": "static/images/user.png",
+				"selectedIconPath": "static/images/user-fill.png"
 			}
 		]
 	},

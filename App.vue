@@ -14,5 +14,6 @@
 
 <style lang="scss">
 	@import "@/uni_modules/uview-plus/index.scss";
+	@import "@/static/fonts/iconfont.css";
 	/*每个页面公共css */
 </style>
