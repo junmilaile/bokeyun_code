@@ -14,11 +14,21 @@
 			  @click="clickNav"></u-tabs>
 		</view>
 		
-		<view class="content">
-			主体
+		<view class="loadingState" v-show="loadState">
+			<u-skeleton
+				rows="4"
+				title
+				loading
+				></u-skeleton>
 		</view>
 		
-		<view class="edit">
+		<view class="content">
+			<view class="item" v-for="item in dataList">
+				<blog-item></blog-item>
+			</view>
+		</view>
+		
+		<view class="edit" @click="editadd">
 			<text class="iconfont icon-a-21-xiugai"></text>
 		</view>
 	</view>
@@ -36,16 +46,35 @@
 		}
 	])
 	
+	const dataList = ref([1,2,3])
+	
+	const loadState = ref(false)
+	
 	const clickNav = (e) => {
 		console.log(e)
 	}
 	
+	// 跳转到新增长文页面
+	const editadd = () => {
+		uni.navigateTo({
+			url:'/pages/edit/edit'
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
 	.home {
 		.topnav {
 			margin-bottom: 30rpx;
+		}
+		.loadingState{
+			padding: 30rpx;
+		}
+		.content {
+			.item {
+				padding: 30rpx;
+				border-bottom: #F7F7F7 15rpx solid;
+			}
 		}
 		.edit {
 			width: 120rpx;
