@@ -1,33 +1,40 @@
 <template>
 	<view class="edit">
 		<view class="title">
-			<input type="text" placeholder="请输入标题" placeholder-class="placeholderClass">
+			<input type="text" v-model="artObj.title" placeholder="请输入标题" placeholder-class="placeholderClass">
 		</view>
 		<view class="content">
 			<editor
+			class="myEdita"
 			placeholder="写点什么吧~"
+			show-img-size
+			show-img-toolbar
+			show-img-resize
+			@ready="onEditReady"
+			@focus="onFocus"
+			@statuschange="onStatuschange"
 			></editor>
 		</view>
 		<view class="btnGroup">
-			<u-button type="primary" text="确认发表" disabled=""></u-button>
+			<u-button @click="onSubmit" type="primary" text="确认发表" :disabled="!artObj.title.length"></u-button>
 		</view>
-		<view class="tools">
-			<view class="item">
-				<text class="iconfont icon-zitibiaoti"></text>
+		<view class="tools" v-if="toolShow">
+			<view class="item" @click="clickHead">
+				<text class="iconfont icon-zitibiaoti" :class="headShow ? 'active' : '' "></text>
 			</view>
-			<view class="item">
-				<text class="iconfont icon-zitijiacu"></text>
+			<view class="item" @click="clickBold">
+				<text class="iconfont icon-zitijiacu"  :class="boldShow ? 'active' : '' "></text>
 			</view>
-			<view class="item">
-				<text class="iconfont icon-zitixieti"></text>
+			<view class="item" @click="clickitalic">
+				<text class="iconfont icon-zitixieti"  :class="italicShow ? 'active' : '' "></text>
 			</view>
-			<view class="item">
-				<text class="iconfont icon-fengexian"></text>
+			<view class="item" @click="clickDivider">
+				<text class="iconfont icon-fengexian"  :class="DividerShow ? 'active' : '' "></text>
 			</view>
-			<view class="item">
-				<text class="iconfont icon-charutupian"></text>
+			<view class="item" @click="clickInsertImage">
+				<text class="iconfont icon-charutupian" :class="insertImageShow ? 'active' : '' "></text>
 			</view>
-			<view class="item">
+			<view class="item" @click="editOk">
 				<text class="iconfont  icon-duigou_kuai"></text>
 			</view>
 		</view>
@@ -35,7 +42,125 @@
 </template>
 
 <script setup>
-
+	import {ref,onMounted,getCurrentInstance} from 'vue'
+	
+	const toolShow = ref(false)
+	const editoorCtx = ref(null)
+	
+	const headShow = ref(false)
+	const boldShow = ref(false)
+	const italicShow = ref(false)
+	const insertImageShow = ref(false)
+	const DividerShow = ref(false)
+	
+	const artObj = ref({
+		title: '',
+		content: '',
+		description: '',
+		picurls: ''
+	})
+	// 初始化
+	const onEditReady = () => {
+		const instance = getCurrentInstance()
+		const query = uni.createSelectorQuery().in(instance)
+		query.select('.myEdita').fields({
+			context: true
+		}, res => {
+			console.log(res)
+			editoorCtx.value = res.context
+		})
+		query.exec()
+	}
+	
+	const checkStatus = (name, detail, obj) => {
+		if (detail.hasOwnProperty(name)) {
+			obj.value = true;					
+		} else {
+			obj.value = false;
+		}
+	}
+	
+	// 当样式发生改变的时候触发方法
+	const onStatuschange = (e) => {
+		let detail = e.detail
+		checkStatus('header', detail, headShow)
+		checkStatus('bold', detail, boldShow)
+		checkStatus('italic', detail, italicShow)
+	}
+	
+	
+	//离开焦点事件
+	const onFocus = () => {
+		toolShow.value = true
+	}
+	
+	// 添加分割线
+	const clickDivider = () => {
+		DividerShow.value = !DividerShow.value
+		console.log(editoorCtx.value)
+		editoorCtx.value.insertDivider()
+	}
+	
+	// 添加大标题 
+	const clickHead = () => {
+		headShow.value = !headShow.value
+		editoorCtx.value.format("header",headShow.value ? 'H2' : false)
+	}
+	
+	// 字体加粗方法
+	const clickBold = () => {
+		boldShow.value = !boldShow.value
+		editoorCtx.value.format("bold")
+	}
+	
+	// 字体倾斜方法
+	const clickitalic = () => {
+		italicShow.value = !italicShow.value
+		editoorCtx.value.format("italic")
+	}
+	
+	// 点击工具条的确认方法
+	const editOk = () => {
+		toolShow.value = false
+	}
+	
+	// 点击添加图片方法
+	const clickInsertImage =  () => {
+		insertImageShow.value = !insertImageShow.value
+		
+		uni.chooseImage({
+			success:async res => {
+				console.log(res.tempFiles)
+				uni.showLoading({
+					title:'上传中,请稍后',
+					mask: true
+				})
+				for(let item of res.tempFiles) {
+				 let res = await uniCloud.uploadFile({
+						filePath:item.path,
+						cloudPath:item.name
+					})
+					
+					editoorCtx.value.insertImage({
+						src: res.fileID
+					})
+				}
+				uni.hideLoading()
+			}
+		})
+	}
+	
+	// 点击提交按钮的方法
+	const onSubmit = () => {
+		editoorCtx.value.getContents({
+			success: res => {
+				artObj.value.description = res.text.slice(0,50)
+				artObj.value.content = res.html
+				// artObj.picurls =
+				console.log(artObj.value)
+			}
+		})
+	}
 </script>
 
 <style lang="scss">
@@ -59,6 +184,10 @@
 			}
 		}
 		.content {
+			.myEdita {
+				height: calc(100vh - 500rpx);
+				margin-bottom: 30rpx;
+			}
 			height: calc(100vh - 500rpx);
 			margin-bottom: 30rpx;
 		}
@@ -76,7 +205,7 @@
 			.iconfont {
 				font-size: 36rpx;
 				color: #333;
-				&:active {
+				&.active {
 					color: #0199FE;
 				}
 			}
