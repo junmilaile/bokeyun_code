@@ -43,6 +43,16 @@
 
 <script setup>
 	import {ref,onMounted,getCurrentInstance} from 'vue'
+	import {getImgSrc,getProvince} from '@/utils/tools.js'
+	// 小程序生命周期
+	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	
+	onLoad(() => {
+		getProvince().then(res => {
+			console.log(res)
+			artObj.value.province = res
+		})
+	})
 	
 	const toolShow = ref(false)
 	const editoorCtx = ref(null)
@@ -57,7 +67,8 @@
 		title: '',
 		content: '',
 		description: '',
-		picurls: ''
+		picurls: '',
+		province: ''
 	})
 	// 初始化
 	const onEditReady = () => {
@@ -156,7 +167,7 @@
 			success: res => {
 				artObj.value.description = res.text.slice(0,50)
 				artObj.value.content = res.html
-				// artObj.picurls =
+				artObj.picurls = getImgSrc(res.html)
 				console.log(artObj.value)
 			}
 		})
