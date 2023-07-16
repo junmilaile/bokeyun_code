@@ -105,7 +105,16 @@
 				"navigationBarTitleText": "实名认证"
 			}
 		}
-	],
+	    ,{
+            "path" : "pages/detail/detail",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "详情页",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "咸虾米的圈子",

@@ -82,6 +82,7 @@
 			"bsonType": "int",
 			"title": "阅读数量",
 			"description": "阅读数量",
+			"defaultValue": 55,
 			"permission": {
 				"write": false
 			}
@@ -89,6 +90,7 @@
 		"like_count": {
 			"bsonType": "int",
 			"description": "喜欢数、点赞数",
+			"defaultValue": 0,
 			"permission": {
 				"write": false
 			}
@@ -97,6 +99,7 @@
 		"comment_count": {
 			"bsonType": "int",
 			"description": "评论数量",
+			"defaultValue": 0,
 			"permission": {
 				"write": false
 			}

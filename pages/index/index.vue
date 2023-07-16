@@ -24,7 +24,7 @@
 		
 		<view class="content">
 			<view class="item" v-for="item in dataList">
-				<blog-item></blog-item>
+				<blog-item :item="item"></blog-item>
 			</view>
 		</view>
 		
@@ -36,25 +36,52 @@
 
 <script setup>
 	import {ref} from 'vue'
+	// 小程序生命周期
+	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	
+	const db = uniCloud.database()
+	
+	onLoad( async () => {
+		await getData()
+	})
 	
 	const navlist = ref([
 		{
-			name: '最新'
+			name: '最新',
+			type: 'publish_date'
 		},
 		{
-			name: '热门'
+			name: '热门',
+			type: 'view_count'
 		}
 	])
 	
-	const dataList = ref([1,2,3])
+	const dataList = ref([])
 	
-	const loadState = ref(false)
+	const navAction = ref(0)
+	
+	const loadState = ref(true)
 	
 	const clickNav = (e) => {
+		loadState.value = true
+		dataList.value = []
 		console.log(e)
+		navAction.value = e.index
+		getData()
 	}
 	
-	// 跳转到新增长文页面
+	const getData = () => {
+	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date").getTemp()
+		let userTemp = db.collection('uni-id-users').field("_id,username,nickname,avatar_file").getTemp() 
+		
+		db.collection(artTemp,userTemp).orderBy( navlist.value[navAction.value].type ,"desc").get().then(res => {
+			console.log(res)
+			dataList.value = res.result.data
+			loadState.value = false
+		})
+	}
+	
+	// 跳转到发布长文页面
 	const editadd = () => {
 		uni.navigateTo({
 			url:'/pages/edit/edit'

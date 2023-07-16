@@ -3,11 +3,11 @@
 			<view class="head">
 				<view class="userinfo">
 					<view class="avatar">
-						<image src="../../static/images/panda.jpg"  mode="aspectFill"></image>
+						<image :src="props.item.user_id[0].avater_file ? props.item.user_id[0].avater_file.url : '../../static/images/user-default.jpg'"  mode="aspectFill"></image>
 					</view>
-					<view class="name">王五</view>
+					<view class="name">{{props.item.user_id[0].nickname ? props.item.user_id[0].nickname : props.item.user_id[0].username}}</view>
 					<view class="time">
-						<uni-dateformat :date="Date.now()" format="MM月dd hh:mm" :threshold="[60000,3600000*24*30]"></uni-dateformat>
+						<uni-dateformat :date="item.publish_date" format="MM月dd hh:mm" :threshold="[60000,3600000*24*30]"></uni-dateformat>
 					</view>
 				</view>
 				
@@ -17,22 +17,22 @@
 			</view>
 			
 			<view class="body">
-				<view class="title" >默认标题</view>
-				<view class="text">
-					<view class="t">博客摘要部分博客摘要部分博客摘要部分博客摘要部分博客摘要部分博客摘要部分</view>
+				<view class="title" @click="goDetail">{{props.item.title}}</view>
+				<view class="text" @click="goDetail">
+					<view class="t">{{props.item.description}}</view>
 				</view>
 				<view class="piclist">
-					<view class="pic" :class="picArr.length==1 ? 'only': ''" v-for="item in picArr" :key="item">
-						<image src="../../static/images/pic2.jpg" mode="aspectFill"></image>
+					<view class="pic" :class="props.item.picurls==1 ? 'only': ''" v-for="(item,index) in props.item.picurls" :key="item">
+						<image @click="clickPic(index)" :src="item" mode="aspectFill"></image>
 					</view>					
 				</view>
 			</view>
 			
 			
 			<view class="info">
-				<view class="box"><text class="iconfont icon-a-27-liulan"></text> <text>15</text></view>
-				<view class="box"><text class="iconfont icon-a-5-xinxi"></text> <text>30</text></view>
-				<view class="box"><text class="iconfont icon-a-106-xihuan"></text> <text>22</text></view>
+				<view class="box"><text class="iconfont icon-a-27-liulan"></text> <text>{{props.item.view_count}}</text></view>
+				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count === 0 ? '评论' : props.item.comment_count }}</text></view>
+				<view class="box"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
 			</view>
 			
 			
@@ -42,9 +42,30 @@
 </template>
 
 <script setup>
-	import {ref} from 'vue'
+	import {ref,defineProps} from 'vue'
 	
-	const picArr = ref([1,2,3])
+	const props = defineProps({
+		item: {
+			type: Object,
+			default(){
+				return {}
+			}
+		}
+	})
+	// 点击图片
+	const clickPic = (index) => {
+		uni.previewImage({
+			urls: props.item.picurls,
+			current:index
+		})
+	}
+	
+	// 点击跳转到详情
+	const goDetail = () => {
+			uni.navigateTo({
+				url:'/pages/detail/detail?id=' + props.item._id
+			})
+	}
 </script>
 
 <style lang="scss">

@@ -46,12 +46,18 @@
 	import {getImgSrc,getProvince} from '@/utils/tools.js'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	const db = uniCloud.database()
 	
 	onLoad(() => {
 		getProvince().then(res => {
 			console.log(res)
 			artObj.value.province = res
 		})
+	
+	})
+	
+	onShow(() => {
+		instance.value = this
 	})
 	
 	const toolShow = ref(false)
@@ -63,6 +69,7 @@
 	const insertImageShow = ref(false)
 	const DividerShow = ref(false)
 	
+	const instance = ref(null)
 	const artObj = ref({
 		title: '',
 		content: '',
@@ -71,16 +78,17 @@
 		province: ''
 	})
 	// 初始化
-	const onEditReady = () => {
-		const instance = getCurrentInstance()
-		const query = uni.createSelectorQuery().in(instance)
-		query.select('.myEdita').fields({
-			context: true
+	const onEditReady = async () => {
+		// const instance = await  getCurrentInstance()
+		const query = await uni.createSelectorQuery().in(instance.value)
+		await query.select('.myEdita').fields({
+			context: true,
+			size: true
 		}, res => {
 			console.log(res)
 			editoorCtx.value = res.context
 		})
-		query.exec()
+		await query.exec()
 	}
 	
 	const checkStatus = (name, detail, obj) => {
@@ -165,12 +173,34 @@
 	const onSubmit = () => {
 		editoorCtx.value.getContents({
 			success: res => {
+				console.log(res)
 				artObj.value.description = res.text.slice(0,50)
 				artObj.value.content = res.html
-				artObj.picurls = getImgSrc(res.html)
+				artObj.value.picurls = getImgSrc(res.html)
 				console.log(artObj.value)
+				uni.showLoading({
+					title:'发布中...'
+				})
+				addData()
 			}
 		})
+	}
+	
+	const addData = () => {
+			db.collection("quanzi_aticle").add({
+				...artObj.value
+			}).then(res => {
+				// console.log(res)
+				uni.hideLoading()
+				uni.showToast({
+					title:'发布成功'
+				})
+				setTimeout(() => {
+					uni.reLaunch({
+						url: '/pages/index/index'
+					})
+				},800)
+			})
 	}
 </script>
 
