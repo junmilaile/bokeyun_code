@@ -3,9 +3,9 @@
 			<view class="head">
 				<view class="userinfo">
 					<view class="avatar">
-						<image :src="props.item.user_id[0].avater_file ? props.item.user_id[0].avater_file.url : '../../static/images/user-default.jpg'"  mode="aspectFill"></image>
+						<image :src="giveAvatar(props.item)"  mode="aspectFill"></image>
 					</view>
-					<view class="name">{{props.item.user_id[0].nickname ? props.item.user_id[0].nickname : props.item.user_id[0].username}}</view>
+					<view class="name">{{giveName(props.item)}}</view>
 					<view class="time">
 						<uni-dateformat :date="item.publish_date" format="MM月dd hh:mm" :threshold="[60000,3600000*24*30]"></uni-dateformat>
 					</view>
@@ -18,11 +18,11 @@
 			
 			<view class="body">
 				<view class="title" @click="goDetail">{{props.item.title}}</view>
-				<view class="text" @click="goDetail">
+				<view class="text" @click="goDetail" v-if="props.item.description">
 					<view class="t">{{props.item.description}}</view>
 				</view>
-				<view class="piclist">
-					<view class="pic" :class="props.item.picurls==1 ? 'only': ''" v-for="(item,index) in props.item.picurls" :key="item">
+				<view class="piclist" v-if="props.item.picurls.length">
+					<view class="pic" :class="props.item.picurls.length == 1 ? 'only': ''" v-for="(item,index) in props.item.picurls" :key="item">
 						<image @click="clickPic(index)" :src="item" mode="aspectFill"></image>
 					</view>					
 				</view>
@@ -34,15 +34,12 @@
 				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count === 0 ? '评论' : props.item.comment_count }}</text></view>
 				<view class="box"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
 			</view>
-			
-			
-			
-			
 		</view>
 </template>
 
 <script setup>
 	import {ref,defineProps} from 'vue'
+	import {giveName,giveAvatar} from '../../utils/tools.js'
 	
 	const props = defineProps({
 		item: {

@@ -140,5 +140,12 @@
 		]
 	},
 
-	"uniIdRouter": {}
+	"uniIdRouter": {
+		"loginPage": "uni_modules/uni-id-pages/pages/login/login-withpwd",
+		"needLogin": [
+			"pages/edit/edit",
+			"uni_modules/uni-id-pages/pages/userinfo/userinfo"
+		],
+		"resToLogin": true
+	}
 }

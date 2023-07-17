@@ -9,11 +9,11 @@
 						<view class="title">{{data.title}}</view>
 						<view class="userinfo">
 							<view class="avatar">
-								<image :src="data.user_id[0].avater_file ? data.user_id[0].avater_file.url : '../../static/images/user-default.jpg'" mode="aspectFill"></image>
+								<image :src="giveAvatar(data)" mode="aspectFill"></image>
 							</view>
 							<view class="text">
 								<view class="name">
-									{{data.user_id[0].nickname ? data.user_id[0].nickname : data.user_id[0].username}}
+									{{giveName(data)}}
 								</view>
 								<view class="small">
 									<uni-dateformat :date="data.publish_date" format="yyyy年MM月dd hh:mm:ss" ></uni-dateformat>· 发布于{{data.province}}
@@ -70,6 +70,7 @@
 	import {ref} from 'vue'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	import {giveName,giveAvatar} from '../../utils/tools.js'
 	
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true 
@@ -90,7 +91,7 @@
 		}
 		// console.log(e)
 		artid.value = e.id
-		console.log(artid.value)
+		// console.log(artid.value)
 	   await getData()
 		await update()
 	})

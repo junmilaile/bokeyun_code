@@ -1,6 +1,7 @@
 {
 	"bsonType": "object",
 	"required": [
+		{"read": true},
 		"user_id",
 		"title"
 	],

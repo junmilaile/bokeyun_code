@@ -2,16 +2,17 @@
 	<view>
 		<view class="user">
 			<view class="top">
-				<view class="group">
+				<view class="group" @click="toUserInfo">
 					<view class="userinfo">
 						<view class="pic">
-							<image v-if="hasLogin&&userInfo.avatar_file&&userInfo.avatar_file.url" src="../../static/images/user-default.jpg" mode="aspectFill"></image>
+							<image v-if="hasLogin&&userInfo.avatar_file&&userInfo.avatar_file.url" :src="userInfo.avatar_file.url" mode="aspectFill"></image>
 							<image v-else src="../../static/images/user-default.jpg" mode="aspectFill"></image>
 						</view>
-						<view class="text" v-if="true">
+					
+						<view class="text" v-if="hasLogin">
 							<view class="nickname">{{userInfo.nickname||userInfo.username||userInfo.mobile}}</view>
 							<view class="year">
-								<uni-dateformat :date="new Date() - 360000" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
+								<uni-dateformat :date="userInfo.register_date" :threshold="[3600,99*365*24*60*60*1000]"></uni-dateformat>
 								注册</view>
 						</view>
 						<view class="text" v-else>
@@ -26,7 +27,8 @@
 				</view>
 				
 				<view class="bg">				
-					<image src="../../static/images/user-default.jpg" mode="aspectFill" ></image>
+					<image v-if="hasLogin&&userInfo.avatar_file&&userInfo.avatar_file.url" :src="userInfo.avatar_file.url" mode="aspectFill"></image>
+					<image v-else src="../../static/images/user-default.jpg" mode="aspectFill"></image>
 				</view>
 			</view>
 			
@@ -66,8 +68,8 @@
 						</view>	
 					</view>
 					
-					<view class="group">
-						<view class="item">
+					<view class="group"  v-if="hasLogin">
+						<view class="item" @click="logout">
 							<view class="left"><text class="iconfont icon-a-73-tuichu"></text><text class="text">退出登录</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
 						</view>					
@@ -76,11 +78,14 @@
 			</view>
 		</view>
 	</view>
+	
 </template>
 
 <script setup>
 	import {store,mutations} from '@/uni_modules/uni-id-pages/common/store.js'
 	import {ref,computed} from 'vue'
+	// 小程序生命周期
+	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
 	
 	const hasLogin = computed(() => {
 		return store.hasLogin
@@ -89,6 +94,25 @@
 	const userInfo = computed(() => {
 		return store.userInfo
 	})
+	// 退出登录
+	const logout = () => {
+		uni.showModal({
+			title:'是否确认退出？',
+			success: res => {
+				console.log(res)
+				if(res.confirm) {
+					mutations.logout()
+				}
+			}
+		})
+	}
+	
+	// 编辑个人资料
+	const toUserInfo = () => {
+		uni.navigateTo({
+			url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
+		})
+	}
 	
 </script>
 
