@@ -43,11 +43,11 @@
 				
 				<view class="list">
 					<view class="group">					
-						<view class="item">
+						<view class="item" @click="myArticle">
 							<view class="left"><text class="iconfont icon-a-24-bianji"></text><text class="text">我的长文</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
 						</view>
-						<view class="item">
+						<view class="item" @click="myLike">
 							<view class="left"><text class="iconfont icon-a-106-xihuan"></text><text class="text">我的点赞</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
 						</view>
@@ -62,13 +62,13 @@
 							<view class="left"><text class="iconfont icon-a-32-wenjian"></text><text class="text">关于</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
 						</view>		
-						<view class="item">
+						<view class="item" @click="goFeedback">
 							<view class="left"><text class="iconfont icon-a-5-xinxi"></text><text class="text">意见反馈</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
 						</view>	
 					</view>
 					
-					<view class="group"  v-if="hasLogin">
+					<view class="group">
 						<view class="item" @click="logout">
 							<view class="left"><text class="iconfont icon-a-73-tuichu"></text><text class="text">退出登录</text></view>
 							<view class="right"><text class="iconfont icon-a-10-you"></text></view>
@@ -107,13 +107,45 @@
 		})
 	}
 	
+	const goLoginPage = () => {
+		if(!hasLogin.value) {
+			uni.showToast({
+				title:'未登录',
+				icon:'none'
+			})
+			return true
+		}
+		return false
+	}
+	
 	// 编辑个人资料
 	const toUserInfo = () => {
 		uni.navigateTo({
 			url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo'
 		})
 	}
+	// 跳转到我的长文
+	const myArticle = () => {
+		if(goLoginPage()) return
+		uni.navigateTo({
+			url:'/pages/quanzi_aticle/list'
+		})
+	}
 	
+	// 跳转到我的长文
+	const myLike = () => {
+		if(goLoginPage()) return
+		uni.navigateTo({
+			url:'/pages/quanzi_like/list'
+		})
+	}
+	// 跳转到意见反馈
+	const goFeedback = () => {
+		if(goLoginPage()) return
+		uni.navigateTo({
+			url:'/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback'
+		})
+	}
 </script>
 
 <style lang="scss">

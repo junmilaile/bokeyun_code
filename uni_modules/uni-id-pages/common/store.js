@@ -6,7 +6,7 @@ const db = uniCloud.database();
 const usersTable = db.collection('uni-id-users')
 
 let hostUserInfo = uni.getStorageSync('uni-id-pages-userInfo')||{}
-console.log( hostUserInfo)
+// console.log( hostUserInfo)
 // console.log( uniCloud.getCurrentUserInfo().tokenExpired - Date.now() > 0)
 let tokenTime =  uniCloud.getCurrentUserInfo().tokenExpired - Date.now()
 
