@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "u-tabs": "../../uni_modules/uview-plus/components/u-tabs/u-tabs",
+    "u-skeleton": "../../uni_modules/uview-plus/components/u-skeleton/u-skeleton",
+    "blog-item": "../../components/blog-item/blog-item"
+  }
+}

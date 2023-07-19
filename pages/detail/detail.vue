@@ -71,7 +71,9 @@
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
 	import {giveName,giveAvatar} from '../../utils/tools.js'
-	
+	import { store } from '../../uni_modules/uni-id-pages/common/store.js';
+	import pageJson from '@/pages.json'
+
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true 
 	})
@@ -153,6 +155,21 @@
 	
 	// 点赞的方法
 	const clickLike = async () => {
+		if(!store.hasLogin) {
+			uni.showModal({
+				title:'未登录，请先登录',
+				success:res => {
+					if(res.confirm) {
+						uni.navigateTo({
+							url:'/' + pageJson.uniIdRouter.loginPage
+						})
+					}
+				}
+			})
+			return
+		}
+		
+		
 		let time = Date.now()
 		if(time - likeTime.value < 2000) {
 			uni.showToast({
