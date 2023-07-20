@@ -1,7 +1,10 @@
 <template>
   <view class="container">
     <unicloud-db ref="udb" v-slot:default="{data, pagination, loading, hasMore, error}" :collection="collectionList"  >
-      <view v-if="error">{{error.message}}</view>
+      <view v-if="error">
+		{{error}}
+		<button type="primary" style="margin-top: 20rpx; width: 50%;" @click="gologin">请登录</button>
+	  </view>
       <view v-else-if="data">
         <uni-list>
           <uni-list-item v-for="(item, index) in data" :key="index" showArrow :clickable="true" @click="handleItemClick(item._id)">
@@ -17,11 +20,12 @@
       </view>
       <uni-load-more :status="loading?'loading':(hasMore ? 'more' : 'noMore')"></uni-load-more>
     </unicloud-db>
-    <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
+  
   </view>
 </template>
 
 <script>
+	import pageJson from '@/pages.json'
 	const db = uniCloud.database()
   export default {
     data() {
@@ -48,6 +52,11 @@
       this.$refs.udb.loadMore()
     },
     methods: {
+	  gologin() {
+		uni.navigateTo({
+			url:'/' + pageJson.uniIdRouter.loginPage
+		})
+	  },
       handleItemClick(id) {
         uni.navigateTo({
           url: './detail?id=' + id

@@ -5,7 +5,6 @@ const uniIdCo = common_vendor.Ds.importObject("uni-id-co");
 const db = common_vendor.Ds.database();
 const usersTable = db.collection("uni-id-users");
 let hostUserInfo = common_vendor.index.getStorageSync("uni-id-pages-userInfo") || {};
-console.log(hostUserInfo);
 let tokenTime = common_vendor.Ds.getCurrentUserInfo().tokenExpired - Date.now();
 if (tokenTime <= 0)
   hostUserInfo = {};
@@ -68,7 +67,7 @@ const mutations = {
     common_vendor.index.removeStorageSync("uni_id_token");
     common_vendor.index.setStorageSync("uni_id_token_expired", 0);
     common_vendor.index.redirectTo({
-      url: `/pages/self/self`
+      url: "/pages/self/self"
     });
     common_vendor.index.$emit("uni-id-pages-logout");
     this.setUserInfo({}, { cover: true });
@@ -131,9 +130,9 @@ const mutations = {
       });
     }
     if (autoBack) {
-      let userIndex = uniIdRedirectUrl;
-      userIndex = "/pages/index/index";
-      this.loginBack({ userIndex });
+      let uniUrl = uniIdRedirectUrl;
+      uniUrl = "/pages/index/index";
+      this.loginBack({ uniUrl });
     }
   }
 };

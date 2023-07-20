@@ -54,19 +54,13 @@ const _sfc_main = {
       }, 1e3);
     };
     const getData = () => {
-      console.log();
-      common_vendor.index.getStorageSync("uni-id-pages-userInfo");
+      const userid = common_vendor.index.getStorageSync("uni-id-pages-userInfo");
       let artTemp = db.collection("quanzi_aticle").where(`_id == '${artid.value}'`).getTemp();
       let userTemp = db.collection("uni-id-users").field("_id,username,nickname,avatar_file").getTemp();
-      let likeTemp = db.collection("quanzi_like").where(`article_id == '${artid.value}' && user_id == $cloudEnv_uid`).getTemp();
-      let tempArr = [artTemp, userTemp];
-      if (uni_modules_uniIdPages_common_store.store.hasLogin)
-        tempArr.push(likeTemp);
-      console.log(tempArr);
-      db.collection(...tempArr).get({
+      let likeTemp = db.collection("quanzi_like").where(`article_id == '${artid.value}' && user_id == '${userid._id}'`).getTemp();
+      db.collection(artTemp, userTemp, likeTemp).get({
         getOne: true
       }).then((res) => {
-        var _a, _b;
         console.log(res);
         if (!res.result.data) {
           errFun();
@@ -74,9 +68,7 @@ const _sfc_main = {
         }
         data.value = res.result.data;
         loadState.value = false;
-        let isLike = false;
-        if (uni_modules_uniIdPages_common_store.store.hasLogin)
-          isLike = ((_b = (_a = res.result.data._id) == null ? void 0 : _a.quanzi_like) == null ? void 0 : _b.length) ? true : false;
+        let isLike = res.result.data._id.quanzi_like.length ? true : false;
         res.result.data.isLike = isLike;
         common_vendor.index.setNavigationBarTitle({
           title: data.value.title
@@ -92,7 +84,7 @@ const _sfc_main = {
     const clickLike = async () => {
       if (!uni_modules_uniIdPages_common_store.store.hasLogin) {
         common_vendor.index.showModal({
-          title: "先登录,才能操作",
+          title: "未登录，请先登录",
           success: (res) => {
             if (res.confirm) {
               common_vendor.index.navigateTo({

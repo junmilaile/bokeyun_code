@@ -11,7 +11,7 @@
 					</view>
 				</view>
 				
-				<view class="more">
+				<view class="more" @click="clickMore">
 					<text class="iconfont icon-ellipsis"></text>
 				</view>
 			</view>
@@ -34,12 +34,38 @@
 				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count === 0 ? '评论' : props.item.comment_count }}</text></view>
 				<view class="box"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
 			</view>
+			
+			{{uniIDHasPermission()}}
+			<u-action-sheet :actions="list" @close="cancel" cancelText="取消" :show="show"
+			:closeOnClickOverlay="true" :closeOnClickAction="true"
+			@select="sheetSelect"
+			></u-action-sheet>
 		</view>
 </template>
 
 <script setup>
-	import {ref,defineProps} from 'vue'
+	import {ref,defineProps,onMounted,getCurrentInstance  } from 'vue'
 	import {giveName,giveAvatar} from '../../utils/tools.js'
+	// 小程序生命周期
+	import {onLoad,onHide,onShow,onReady} from  '@dcloudio/uni-app'
+	const thit = getCurrentInstance()
+	
+	
+	
+	const list = ref([
+		{
+			name: "修改",
+			type: 'edit',
+			disabled: true
+		},
+		{
+			name: "删除",
+			type: 'del',
+			color: '#e45656',
+			disabled: true
+		}
+	])
+	const show = ref(false)
 	
 	const props = defineProps({
 		item: {
@@ -62,6 +88,26 @@
 			uni.navigateTo({
 				url:'/pages/detail/detail?id=' + props.item._id
 			})
+	}
+	// 点击弹出编辑
+	const clickMore = () => {
+		show.value = true
+		let uid = uniCloud.getCurrentUserInfo().uid
+		console.log(uid)
+		if(uid === props.item.user_id[0]._id || role.length > 0) {
+			list.value.forEach(item => {
+				item.disabled = false
+			})
+		}
+		console.log(uid === props.item.user_id[0]._id)
+	}
+	// 点击取消按钮触发的方法
+	const cancel = () => {
+		show.value = false
+	}
+	// 点击上拉菜单的一个属性会触发的方法
+	const sheetSelect = (e) => {
+		console.log(e)
 	}
 </script>
 

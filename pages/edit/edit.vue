@@ -6,7 +6,7 @@
 		<view class="content">
 			<editor
 			class="myEdita"
-			placeholder="写点什么吧~"
+			placeholder="请输入内容"
 			show-img-size
 			show-img-toolbar
 			show-img-resize
@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-	import {ref,onMounted,getCurrentInstance} from 'vue'
+	import {ref,onMounted} from 'vue'
 	import {getImgSrc,getProvince} from '@/utils/tools.js'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
@@ -57,7 +57,7 @@
 	})
 	
 	onShow(() => {
-		instance.value = this
+		instance.value = this 
 	})
 	
 	const toolShow = ref(false)
@@ -79,7 +79,6 @@
 	})
 	// 初始化
 	const onEditReady = async () => {
-		// const instance = await  getCurrentInstance()
 		const query = await uni.createSelectorQuery().in(instance.value)
 		await query.select('.myEdita').fields({
 			context: true,

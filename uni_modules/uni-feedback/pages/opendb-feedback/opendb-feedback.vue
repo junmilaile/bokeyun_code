@@ -19,7 +19,7 @@
 				<button type="primary" class="uni-button" @click="submit">提交</button>
 			</view>
 		</uni-forms>
-		<uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
+		<uni-fab v-if="uniIDHasRole('webmaster') || uniIDHasRole('admin') " ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
 	</view>
 </template>
 

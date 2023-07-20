@@ -20,10 +20,12 @@
     "uni_modules/uni-id-pages/pages/userinfo/set-pwd/set-pwd",
     "uni_modules/uni-id-pages/pages/userinfo/realname-verify/realname-verify",
     "pages/detail/detail",
-    "pages/quanzi_aticle/add",
-    "pages/quanzi_aticle/edit",
     "pages/quanzi_aticle/list",
-    "pages/quanzi_aticle/detail"
+    "pages/quanzi_like/list",
+    "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
+    "uni_modules/uni-feedback/pages/opendb-feedback/edit",
+    "uni_modules/uni-feedback/pages/opendb-feedback/list",
+    "uni_modules/uni-feedback/pages/opendb-feedback/detail"
   ],
   "window": {
     "navigationBarTextStyle": "white",

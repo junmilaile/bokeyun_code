@@ -1,5 +1,6 @@
 <template>
 	<view>
+		{{}}
 		<view class="user">
 			<view class="top">
 				<view class="group" @click="toUserInfo">
@@ -96,6 +97,8 @@
 	})
 	// 退出登录
 	const logout = () => {
+		if(goLoginPage()) return
+		
 		uni.showModal({
 			title:'是否确认退出？',
 			success: res => {

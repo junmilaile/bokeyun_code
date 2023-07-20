@@ -20,6 +20,8 @@ const _sfc_main = {
       return uni_modules_uniIdPages_common_store.store.userInfo;
     });
     const logout = () => {
+      if (goLoginPage())
+        return;
       common_vendor.index.showModal({
         title: "是否确认退出？",
         success: (res) => {
@@ -30,9 +32,40 @@ const _sfc_main = {
         }
       });
     };
+    const goLoginPage = () => {
+      if (!hasLogin.value) {
+        common_vendor.index.showToast({
+          title: "未登录",
+          icon: "none"
+        });
+        return true;
+      }
+      return false;
+    };
     const toUserInfo = () => {
       common_vendor.index.navigateTo({
         url: "/uni_modules/uni-id-pages/pages/userinfo/userinfo"
+      });
+    };
+    const myArticle = () => {
+      if (goLoginPage())
+        return;
+      common_vendor.index.navigateTo({
+        url: "/pages/quanzi_aticle/list"
+      });
+    };
+    const myLike = () => {
+      if (goLoginPage())
+        return;
+      common_vendor.index.navigateTo({
+        url: "/pages/quanzi_like/list"
+      });
+    };
+    const goFeedback = () => {
+      if (goLoginPage())
+        return;
+      common_vendor.index.navigateTo({
+        url: "/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback"
       });
     };
     return (_ctx, _cache) => {
@@ -54,10 +87,11 @@ const _sfc_main = {
       }, common_vendor.unref(hasLogin) && common_vendor.unref(userInfo).avatar_file && common_vendor.unref(userInfo).avatar_file.url ? {
         h: common_vendor.unref(userInfo).avatar_file.url
       } : {}, {
-        i: common_vendor.unref(hasLogin)
-      }, common_vendor.unref(hasLogin) ? {
-        j: common_vendor.o(logout)
-      } : {});
+        i: common_vendor.o(myArticle),
+        j: common_vendor.o(myLike),
+        k: common_vendor.o(goFeedback),
+        l: common_vendor.o(logout)
+      });
     };
   }
 };

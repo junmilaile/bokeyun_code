@@ -139,10 +139,12 @@ if (!Math) {
   "./uni_modules/uni-id-pages/pages/userinfo/set-pwd/set-pwd.js";
   "./uni_modules/uni-id-pages/pages/userinfo/realname-verify/realname-verify.js";
   "./pages/detail/detail.js";
-  "./pages/quanzi_aticle/add.js";
-  "./pages/quanzi_aticle/edit.js";
   "./pages/quanzi_aticle/list.js";
-  "./pages/quanzi_aticle/detail.js";
+  "./pages/quanzi_like/list.js";
+  "./uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback.js";
+  "./uni_modules/uni-feedback/pages/opendb-feedback/edit.js";
+  "./uni_modules/uni-feedback/pages/opendb-feedback/list.js";
+  "./uni_modules/uni-feedback/pages/opendb-feedback/detail.js";
 }
 const _sfc_main = {
   onLaunch: function() {
