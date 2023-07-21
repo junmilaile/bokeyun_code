@@ -8,7 +8,7 @@
 	"permission": {
 		"read": true,
 		"create": "auth.uid != null",
-		"update": "doc.user_id == auth.uid",
+		"update": "doc.user_id == auth.uid || 'webmaster' in auth.role",
 		"delete": "doc.user_id == auth.uid"
 	},
 	"properties": {
@@ -78,6 +78,12 @@
 					"text": "已发布"
 				}
 			]
+		},
+		"delState": {
+			"bsonType": "bool",
+			"title": "是否被删除",
+			"description": "true是被删除了,false或者代表正常",
+			"defaultValue": false
 		},
 		"view_count": {
 			"bsonType": "int",

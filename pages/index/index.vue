@@ -24,7 +24,7 @@
 		
 		<view class="content">
 			<view class="item" v-for="item in dataList">
-				<blog-item :item="item"></blog-item>
+				<blog-item :item="item" ></blog-item>
 			</view>
 		</view>
 		
@@ -40,6 +40,7 @@
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
 	
 	const db = uniCloud.database()
+	const dbCmd = db.command
 	
 	onLoad( async () => {
 		await getData()
@@ -65,20 +66,35 @@
 	const clickNav = (e) => {
 		loadState.value = true
 		dataList.value = []
-		console.log(e)
+		// console.log(e)
 		navAction.value = e.index
 		getData()
 	}
 	
 	const getData = () => {
-	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date").getTemp()
+	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date,delState").getTemp()
 		let userTemp = db.collection('uni-id-users').field("_id,username,nickname,avatar_file").getTemp() 
+			
+			db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").get().then(res => {
+				
+				let idArr = []
+				let resDataArr = res.result.data
+				
+				resDataArr.forEach(item => {
+					idArr.push(item._id)
+				})
+				
+				db.collection('quanzi_like').where({
+					article_id:dbCmd.in(idArr),
+					user_id: uniCloud.getCurrentUserInfo().uid
+				}).get().then(res => {
+					console.log(res)
+				})
+				console.log(idArr)
+				dataList.value = resDataArr
+				loadState.value = false
+			})
 		
-		db.collection(artTemp,userTemp).orderBy( navlist.value[navAction.value].type ,"desc").get().then(res => {
-			console.log(res)
-			dataList.value = res.result.data
-			loadState.value = false
-		})
 	}
 	
 	// 跳转到发布长文页面
@@ -87,6 +103,14 @@
 			url:'/pages/edit/edit'
 		})
 	}
+	
+	uni.$on('delEvent',(val) => {
+		
+		// console.log(val)
+	 	dataList.value = dataList.value.filter(item =>  item.user_id[0]._id !== val)
+		// console.log(dataList.value)
+		// getData()
+	})
 </script>
 
 <style lang="scss" scoped>
