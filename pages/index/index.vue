@@ -35,6 +35,7 @@
 </template>
 
 <script setup>
+	import {store,mutations} from '@/uni_modules/uni-id-pages/common/store.js'
 	import {ref} from 'vue'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
@@ -75,26 +76,31 @@
 	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date,delState").getTemp()
 		let userTemp = db.collection('uni-id-users').field("_id,username,nickname,avatar_file").getTemp() 
 			
-			db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").get().then(res => {
+			db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").get().then(async res => {
 				
 				let idArr = []
 				let resDataArr = res.result.data
 				
+				if(store.hasLogin){
 				resDataArr.forEach(item => {
 					idArr.push(item._id)
 				})
 				
-				db.collection('quanzi_like').where({
+				const likeRes = await db.collection('quanzi_like').where({
 					article_id:dbCmd.in(idArr),
 					user_id: uniCloud.getCurrentUserInfo().uid
-				}).get().then(res => {
-					console.log(res)
+				}).get()
+				
+				likeRes.result.data.forEach(item => {
+					let findIndex = resDataArr.findIndex(find => item.article_id === find._id)
+					resDataArr[findIndex].isLike = true
 				})
-				console.log(idArr)
-				dataList.value = resDataArr
-				loadState.value = false
-			})
-		
+				
+			}
+			// console.log(idArr)
+			dataList.value = resDataArr
+			loadState.value = false
+		})
 	}
 	
 	// 跳转到发布长文页面

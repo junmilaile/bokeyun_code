@@ -50,7 +50,7 @@
 	
 	onLoad(() => {
 		getProvince().then(res => {
-			console.log(res)
+			// console.log(res)
 			artObj.value.province = res
 		})
 	

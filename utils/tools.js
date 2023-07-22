@@ -1,3 +1,9 @@
+const utilsObj = uniCloud.importObject('utilsObj',{
+	customUI: true 
+})
+	
+const db = uniCloud.database()
+
 //获取富文本内的图片url地址
 export function getImgSrc(richtext,num=3) {
 	let imgList = [];
@@ -70,3 +76,22 @@ export function giveName(item) {
 export function giveAvatar(item) {
 	return item.user_id[0]?.avatar_file?.url ?? '../../static/images/user-default.jpg'
 }
+
+	
+
+//点赞操作数据库的方法
+export const likeFun = async (artid) => {
+		const userid = uni.getStorageSync('uni-id-pages-userInfo')
+		let count = await db.collection('quanzi_like').where(`article_id == '${artid}' && user_id == '${userid._id}'`).count()
+		if(count.result.total) {
+			db.collection('quanzi_like').where(`article_id == '${artid}' && user_id == '${userid._id}'`).remove()
+			utilsObj.operation('quanzi_aticle','like_count',artid,-1)
+		}else {
+			db.collection('quanzi_like').add({
+				article_id: artid
+			}).then(res => {
+				console.log(res)
+			})
+			utilsObj.operation('quanzi_aticle','like_count',artid,1)
+		}
+	}

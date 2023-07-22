@@ -70,15 +70,15 @@
 	import {ref} from 'vue'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
-	import {giveName,giveAvatar} from '../../utils/tools.js'
+	import {giveName,giveAvatar,likeFun} from '../../utils/tools.js'
 	import { store } from '../../uni_modules/uni-id-pages/common/store.js';
 	import pageJson from '@/pages.json'
-
+	
 	const utilsObj = uniCloud.importObject('utilsObj',{
 		customUI: true 
 	})
-	
 	const db = uniCloud.database()
+	
 	const add = ref(true)
 	const artid = ref('')
 	const loadState = ref(true)
@@ -182,24 +182,7 @@
 		data.value.isLike = !data.value.isLike
 		likeTime.value = time
 		// 调用点赞方法
-		likeFun()
-	}
-	
-	//点赞操作数据库的方法
-	const likeFun = async () => {
-		const userid = uni.getStorageSync('uni-id-pages-userInfo')
-		let count = await db.collection('quanzi_like').where(`article_id == '${artid.value}' && user_id == '${userid._id}'`).count()
-		if(count.result.total) {
-			db.collection('quanzi_like').where(`article_id == '${artid.value}' && user_id == '${userid._id}'`).remove()
-			utilsObj.operation('quanzi_aticle','like_count',artid.value,-1)
-		}else {
-			db.collection('quanzi_like').add({
-				article_id: artid.value
-			}).then(res => {
-				console.log(res)
-			})
-			utilsObj.operation('quanzi_aticle','like_count',artid.value,1)
-		}
+		likeFun(artid.value)
 	}
 </script>
 

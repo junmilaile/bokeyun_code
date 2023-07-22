@@ -32,7 +32,7 @@
 			<view class="info">
 				<view class="box"><text class="iconfont icon-a-27-liulan"></text> <text>{{props.item.view_count}}</text></view>
 				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count === 0 ? '评论' : props.item.comment_count }}</text></view>
-				<view class="box"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
+				<view class="box" :class="props.item.isLike ? 'active' : ''" @click="clickLike"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
 			</view>
 			
 		
@@ -45,12 +45,14 @@
 
 <script setup>
 	import {ref,defineProps,onMounted,getCurrentInstance  } from 'vue'
-	import {giveName,giveAvatar} from '../../utils/tools.js'
+	import {giveName,giveAvatar,likeFun} from '../../utils/tools.js'
+	import { store } from '../../uni_modules/uni-id-pages/common/store.js';
 	// 小程序生命周期
 	import {onLoad,onHide,onShow,onReady} from  '@dcloudio/uni-app'
+	import pageJson from '@/pages.json'
 	
 	const db = uniCloud.database()
-	
+	let likeTime = ref(null)
 	
 	const list = ref([
 		{
@@ -68,7 +70,7 @@
 		}
 	])
 	const show = ref(false)
-	
+
 	const props = defineProps({
 		item: {
 			type: Object,
@@ -114,7 +116,7 @@
 			delFun()
 		}
 	}
-	
+	// 删除方法
 	const delFun = () => {
 	
 			uni.showLoading({
@@ -136,6 +138,35 @@
 					icon:'none'
 				})
 			})	
+	}
+	// 点赞操作
+	const clickLike = () => {
+		if(!store.hasLogin) {
+			uni.showModal({
+				title:'未登录，请先登录',
+				success:res => {
+					if(res.confirm) {
+						uni.navigateTo({
+							url:'/' + pageJson.uniIdRouter.loginPage
+						})
+					}
+				}
+			})
+			return
+		}
+		let time = Date.now()
+		if(time - likeTime.value < 2000) {
+			uni.showToast({
+				title:'操作频繁',
+				icon:'none'
+			})
+			return
+		}
+		likeTime.value = time
+		props.item.isLike ? props.item.like_count-- : props.item.like_count++
+		props.item.isLike = !props.item.isLike
+		// 调用点赞方法
+		likeFun(props.item._id)
 	}
 </script>
 

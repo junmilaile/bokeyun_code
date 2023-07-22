@@ -1,6 +1,5 @@
 <template>
 	<view>
-		{{}}
 		<view class="user">
 			<view class="top">
 				<view class="group" @click="toUserInfo">
