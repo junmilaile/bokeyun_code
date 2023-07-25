@@ -36,9 +36,9 @@
 			
 			<view class="main">
 				<view class="info">
-					<view class="item"><text>33</text>获赞</view>
+					<view class="item"><text>{{totalObj.likeNum}}</text>获赞</view>
 					<view class="item"><text>11</text>评论</view>
-					<view class="item"><text>5</text>发文</view>
+					<view class="item"><text>{{totalObj.artNum}}</text>发文</view>
 				</view>
 				
 				<view class="list">
@@ -87,12 +87,23 @@
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
 	
+	
+	onLoad(() => {
+		getTotal()
+	})
+	
+	const db = uniCloud.database()
+	
 	const hasLogin = computed(() => {
 		return store.hasLogin
 	})
 	
 	const userInfo = computed(() => {
 		return store.userInfo
+	})
+	const totalObj = ref({
+		artNum: 0,
+		likeNum: 0
 	})
 	// 退出登录
 	const logout = () => {
@@ -148,11 +159,22 @@
 			url:'/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback'
 		})
 	}
+	// 获取全部的统计数据
+	const getTotal = async () => {
+		if(!hasLogin.value) return
+		const artCount = await db.collection("quanzi_aticle").where(`user_id == $cloudEnv_uid`).count()
+		totalObj.value.artNum = artCount.result.total
+		
+		const likeCount = await db.collection('quanzi_aticle').where(`user_id == $cloudEnv_uid`)
+		.groupBy('user_id')
+		.groupField('sum(like_count) as totalScore').get()
+		
+		totalObj.value.likeNum = likeCount.result.data[0].totalScore
+	}
 </script>
 
 <style lang="scss">
 	.user{
-		
 		.top{
 			height: 300rpx;
 			background: #bbb;

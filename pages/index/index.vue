@@ -27,7 +27,9 @@
 				<blog-item :item="item" ></blog-item>
 			</view>
 		</view>
-		
+		<view class="">
+			<uni-load-more :status="uniLoading"></uni-load-more>
+		</view>
 		<view class="edit" @click="editadd">
 			<text class="iconfont icon-a-21-xiugai"></text>
 		</view>
@@ -36,9 +38,10 @@
 
 <script setup>
 	import {store,mutations} from '@/uni_modules/uni-id-pages/common/store.js'
-	import {ref} from 'vue'
+	import {ref,computed} from 'vue'
 	// 小程序生命周期
-	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	import {onLoad,onHide,onShow,onReachBottom} from  '@dcloudio/uni-app'
+
 	
 	const db = uniCloud.database()
 	const dbCmd = db.command
@@ -64,22 +67,48 @@
 	
 	const loadState = ref(true)
 	
+	const uniLoading = ref('more')
+	const noMore = ref(false)
+	
+	const dataLength = ref(null)
 	const clickNav = (e) => {
 		loadState.value = true
 		dataList.value = []
+		uniLoading.value = 'more'
+		noMore.value = false
 		// console.log(e)
 		navAction.value = e.index
 		getData()
 	}
 	
-	const getData = () => {
+	//触底加载更多
+	onReachBottom( async () => {
+		console.log(noMore.value)
+		uniLoading.value = 'loading'
+		if(noMore.value) {
+			uniLoading.value = 'noMore'
+			return
+		}
+		 await getData()
+	})
+
+	
+	//获取文章表的数据
+	const getData = async () => {
 	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date,delState").getTemp()
 		let userTemp = db.collection('uni-id-users').field("_id,username,nickname,avatar_file").getTemp() 
 			
-			db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").get().then(async res => {
+			await db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").skip(dataList.value.length).limit(5).get().then(async res => {
 				
 				let idArr = []
-				let resDataArr = res.result.data
+				let oldArr = dataList.value
+				console.log(res)
+			
+				if(res.result.data.length === 0) {
+					noMore.value = true
+				}
+				// console.log(noMore.value)
+				let resDataArr = [...oldArr,...res.result.data]
 				
 				if(store.hasLogin){
 				resDataArr.forEach(item => {
@@ -102,6 +131,9 @@
 			loadState.value = false
 		})
 	}
+	
+	
+	
 	
 	// 跳转到发布长文页面
 	const editadd = () => {

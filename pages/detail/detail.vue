@@ -30,8 +30,10 @@
 									<text class="iconfont icon-good-fill"></text>
 									<text v-if="data.like_count">{{data.like_count}}</text>
 								</view>								
-								<view class="users">					
-									<image src="../../static/images/user.jpg" mode="aspectFill" ></image>
+								<view class="users">		
+									<template v-for="item in likeUserArr" >
+										<image v-if="item.user_id[0].avatat_file" :src="giveAvatar(item)" mode="aspectFill" ></image>
+									</template>
 								</view>				
 								<view class="text"><text class="num">{{data.view_count}}</text>人看过</view>
 							</view>
@@ -43,7 +45,7 @@
 				
 			
 		
-		<!-- 	<view class="comment">
+			<view class="comment">
 				<view>
 					<u-empty
 							mode="comment"
@@ -58,11 +60,11 @@
 					</view>
 				</view>
 				
-			</view> -->
+			</view>
 			
 			
 			
-			<!-- <comment-frame></comment-frame> -->
+			<comment-frame></comment-frame>
 		</view>
 </template>
 
@@ -85,6 +87,7 @@
 	const data = ref(null)
 	const show = ref(true)
 	let likeTime = ref(null)
+	const likeUserArr = ref([])
 	
 	onLoad(async (e) => {
 		if(!e.id) {
@@ -95,8 +98,18 @@
 		artid.value = e.id
 		// console.log(artid.value)
 	   await getData()
-		await update()
+	   await update()
+	   await getLikeUser()
 	})
+	
+	// 获取部分点赞的用户
+	const getLikeUser = async () => {
+		const  likeTemp = db.collection('quanzi_like').where(`article_id == "${artid.value}"`).getTemp()
+		const userTemp  = db.collection('uni-id-users').field('_id,ava').getTemp()
+		const res = await db.collection(likeTemp,userTemp).orderBy(`publish_date desc`).limit(5).get()
+		res.result.data = res.result.data.reverse()
+		likeUserArr.value = res.result.data
+	}
 	
 	// 修改阅读量
 	const update = () => {
@@ -104,8 +117,6 @@
 			console.log(res)
 		})
 	}
-	
-
 	
 	// 错误的处理
 	const errFun = () => {
