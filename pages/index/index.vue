@@ -101,14 +101,13 @@
 			await db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").skip(dataList.value.length).limit(5).get().then(async res => {
 				
 				let idArr = []
-				let oldArr = dataList.value
 				console.log(res)
 			
 				if(res.result.data.length === 0) {
 					noMore.value = true
 				}
 				// console.log(noMore.value)
-				let resDataArr = [...oldArr,...res.result.data]
+				let resDataArr = [...dataList.value,...res.result.data]
 				
 				if(store.hasLogin){
 				resDataArr.forEach(item => {

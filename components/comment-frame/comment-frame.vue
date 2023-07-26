@@ -9,12 +9,36 @@
 </template>
 
 <script setup>
-	import {getProvince} from "@/utils/tools.js"	
+	import {getProvince} from "@/utils/tools.js"
+	import {ref,defineProps} from 'vue'
 	const db=uniCloud.database();
 	const utilsObj=uniCloud.importObject("utilsObj",{
 		customUI: true
 	});	
 	
+	const placeholder = ref('评论点什么吧~')
+	const replyContent = ref('')
+	
+	const props = defineProps({
+		id: {
+			type: String,
+			default() {
+				''
+			}
+		}
+	})
+	
+
+	
+	const goComment = () => {
+		db.collection('quanzi_comment').add({
+			// "article_id": props.id,
+			// "comment_content",
+			// "comment_type",
+			// "reply_user_id",
+			// "reply_comment_id"
+		})
+	}
 </script>
 
 <style lang="scss" scoped>

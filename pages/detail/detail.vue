@@ -32,7 +32,7 @@
 								</view>								
 								<view class="users">		
 									<template v-for="item in likeUserArr" >
-										<image v-if="item.user_id[0].avatat_file" :src="giveAvatar(item)" mode="aspectFill" ></image>
+										<image v-if="item.user_id[0]" :src="giveAvatar(item)" mode="aspectFill" ></image>
 									</template>
 								</view>				
 								<view class="text"><text class="num">{{data.view_count}}</text>人看过</view>
@@ -56,7 +56,7 @@
 				
 				<view class="content">
 					<view class="item" v-for="item in 3">
-						<comment-item></comment-item>									
+						<!-- <comment-item></comment-item>									 -->
 					</view>
 				</view>
 				
@@ -64,7 +64,7 @@
 			
 			
 			
-			<comment-frame></comment-frame>
+			<comment-frame :id="artid"></comment-frame>
 		</view>
 </template>
 
@@ -89,7 +89,7 @@
 	let likeTime = ref(null)
 	const likeUserArr = ref([])
 	
-	onLoad(async (e) => {
+	onLoad( (e) => {
 		if(!e.id) {
 			errFun()
 			return
@@ -97,18 +97,22 @@
 		// console.log(e)
 		artid.value = e.id
 		// console.log(artid.value)
-	   await getData()
-	   await update()
-	   await getLikeUser()
+	   getData()
+	   update()
+	   getLikeUser()
 	})
 	
 	// 获取部分点赞的用户
 	const getLikeUser = async () => {
 		const  likeTemp = db.collection('quanzi_like').where(`article_id == "${artid.value}"`).getTemp()
-		const userTemp  = db.collection('uni-id-users').field('_id,ava').getTemp()
+		const userTemp  = db.collection('uni-id-users').field("_id,avatar_file").getTemp()
 		const res = await db.collection(likeTemp,userTemp).orderBy(`publish_date desc`).limit(5).get()
+
 		res.result.data = res.result.data.reverse()
+		
 		likeUserArr.value = res.result.data
+
+		console.log(likeUserArr.value);
 	}
 	
 	// 修改阅读量
@@ -147,6 +151,7 @@
 				return	
 			}
 			data.value = res.result.data
+			console.log(data.value)
 			loadState.value = false
 			let isLike = res.result.data._id.quanzi_like.length ? true : false
 			res.result.data.isLike = isLike
