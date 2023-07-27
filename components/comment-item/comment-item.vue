@@ -1,23 +1,23 @@
 <template>
 	<view>
-		<view class="comment-item" @click="goReply">
+		<view class="comment-item" >
 			<view class="avatar">
-				<u-avatar :src="giveAvatar(item)" size="26"></u-avatar>
+				<u-avatar :src="giveAvatar(props.item)" size="26"></u-avatar>
 			</view>
 
 			<view class="wrap">
 				<view class="username">
-					{{giveName(item)}}
-					<text v-if="!closeBtn" class="iconfont icon-a-43-guanbi" @click.stop="delComment"></text>
+					{{giveName(props.item)}}
+					<text  class="iconfont icon-a-43-guanbi" @click.stop="delComment(uniIDHasRole('admin') || uniIDHasRole('webmaster'))"></text>
 				</view>
-				<view class="comment-content">{{item.comment_content}}</view>
+				<view class="comment-content">{{props.item.comment_content}}</view>
 				<view class="info">
-					<view class="reply-btn" v-if="!childState">{{item.totalReply || ''}}回复 </view>
+					<view class="reply-btn" >{{props.item.totalReply || ''}}回复 </view>
 					<view>
-						<uni-dateformat :date="item.comment_date" :threshold="[60000,3600000*24*30]">
+						<uni-dateformat :date="props.item.comment_date" :threshold="[60000,3600000*24*30]">
 						</uni-dateformat>
 					</view>
-					<view>{{item.province}}</view>
+					<view>{{props.item.province}}</view>
 				</view>
 			</view>
 		</view>
@@ -26,11 +26,60 @@
 
 <script setup>
 	import {giveName,giveAvatar} from "../../utils/tools.js"
+	import {ref,defineProps,defineEmits} from 'vue'
 	const db=uniCloud.database();
 	const utilsObj=uniCloud.importObject("utilsObj",{
 		customUI: true
-	});	
+	})
 	
+	const props = defineProps({
+		item: {
+			type: Object,
+			default() {
+				return{}
+			}
+		}
+	})
+	
+	const emit = defineEmits(['removeEnv'])
+	
+	// 点击删除评论
+	const  delComment = (role) => {
+		let uid = uniCloud.getCurrentUserInfo().uid
+		
+		if(uid === props.item.user_id[0]._id || role) {
+			uni.showModal({
+				title:'是否确认删除',
+				success: res => {
+					if(res.confirm) {
+						removeComment()
+					}
+				}
+			})
+			return
+		}
+			uni.showToast({
+				title:"权限不够",
+				icon:'error'
+			})
+		
+		
+		
+	}
+	
+	// 删除逻辑
+	const removeComment = () => {
+		db.collection('quanzi_comment').doc(props.item._id).update({
+			comment_status: 0
+		}).then(res => {
+			uni.showToast({
+				title:'删除成功'
+			})
+			emit('removeEnv',{_id: props.item._id})
+			uni.$emit('comment_count', -1)
+			if(props.item.comment_count > 0) utilsObj.operation('quanzi_aticle','comment_count',props.item.article_id,-1)
+		})
+	}
 </script>
 
 <style lang="scss" scoped>

@@ -41,12 +41,8 @@
 						</view>
 					</view>
 			
-				
-				
-			
-		
 			<view class="comment">
-				<view>
+				<view v-if="!commentList.length && noComment">
 					<u-empty
 							mode="comment"
 							icon="https://cdn.uviewui.com/uview/empty/comment.png"
@@ -54,9 +50,9 @@
 					</u-empty>
 				</view>
 				
-				<view class="content">
-					<view class="item" v-for="item in 3">
-						<!-- <comment-item></comment-item>									 -->
+				<view class="content" v-else>
+					<view class="item" v-for="item in commentList">
+						<comment-item :item="item" @removeEnv="PremoveEnv"></comment-item>									
 					</view>
 				</view>
 				
@@ -64,7 +60,7 @@
 			
 			
 			
-			<comment-frame :id="artid"></comment-frame>
+			<comment-frame :commentObjadd="commentObj" @commentEnv="PcommentEnv"></comment-frame>
 		</view>
 </template>
 
@@ -88,6 +84,11 @@
 	const show = ref(true)
 	let likeTime = ref(null)
 	const likeUserArr = ref([])
+	const commentObj = ref({
+		article_id: "",
+		comment_type: 0
+	})
+	const noComment = ref(false)
 	
 	onLoad( (e) => {
 		if(!e.id) {
@@ -96,11 +97,42 @@
 		}
 		// console.log(e)
 		artid.value = e.id
+		commentObj.value.article_id = e.id
 		// console.log(artid.value)
 	   getData()
 	   update()
 	   getLikeUser()
+	   getComment()
 	})
+	
+	//删除的评论的回调
+	const PremoveEnv = (e) => {
+		commentList.value = commentList.value.filter(item =>  item._id !== e._id)
+		console.log(e)
+	}
+	
+	// 评论成功的回调
+	const  PcommentEnv = (e) => {
+		commentList.value.unshift({
+			...commentObj.value,
+			...e,
+			user_id: [store.userInfo]
+		})
+		// console.log(e)
+	}
+	
+	const commentList = ref([])
+	// 获取文章的评论数量
+	const  getComment  = async () => {
+		const commentTemp =  db.collection('quanzi_comment').where(`article_id == '${artid.value}'`).orderBy('comment_date desc').limit(5).getTemp()
+		const userTemp = db.collection('uni-id-users').field('_id,avatar_file,username,nickname').getTemp()
+		const res = await db.collection(commentTemp,userTemp).where(`comment_status != ${0}`).get() 
+		console.log(res)
+		commentList.value = res.result.data
+		console.log(commentList.value)
+		if(!commentList.value.length) noComment.value = true
+	}
+	
 	
 	// 获取部分点赞的用户
 	const getLikeUser = async () => {

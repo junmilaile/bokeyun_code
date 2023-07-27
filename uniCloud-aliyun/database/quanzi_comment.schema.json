@@ -4,9 +4,7 @@
 		"article_id",
 		"user_id",
 		"comment_content",
-		"comment_type",
-		"reply_user_id",
-		"reply_comment_id"
+		"comment_type"
 	],
 	"permission": {
 		"read": true,
@@ -75,6 +73,22 @@
 			"description": "发布省份",
 			"label": "发布省份",
 			"trim": "both"
+		},
+		"comment_status": {
+			"bsonType": "int",
+			"title": "文章状态",
+			"description": "文章状态：0 草稿箱 1 已发布",
+			"defaultValue": 1,
+			"enum": [
+				{
+					"value": 0,
+					"text": "草稿箱"
+				},
+				{
+					"value": 1,
+					"text": "已发布"
+				}
+			]
 		}
 	},
 	"version": "0.0.1"

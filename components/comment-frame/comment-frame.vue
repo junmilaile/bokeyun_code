@@ -10,7 +10,7 @@
 
 <script setup>
 	import {getProvince} from "@/utils/tools.js"
-	import {ref,defineProps} from 'vue'
+	import {ref,defineProps,defineEmits} from 'vue'
 	const db=uniCloud.database();
 	const utilsObj=uniCloud.importObject("utilsObj",{
 		customUI: true
@@ -20,23 +20,39 @@
 	const replyContent = ref('')
 	
 	const props = defineProps({
-		id: {
-			type: String,
+		commentObjadd: {
+			type: Object,
 			default() {
-				''
+				return {}
 			}
 		}
 	})
 	
-
+	const emit = defineEmits(["commentEnv"])
 	
-	const goComment = () => {
-		db.collection('quanzi_comment').add({
-			// "article_id": props.id,
-			// "comment_content",
-			// "comment_type",
-			// "reply_user_id",
-			// "reply_comment_id"
+	const goComment = async () => {
+		const Province = await getProvince()
+		if(!replyContent.value) {
+			uni.showToast({
+				title:'评论不能为空',
+				icon:'none'
+			})
+			 return
+		}
+		const commentObj = props.commentObjadd
+		 db.collection('quanzi_comment').add({
+			...commentObj,
+			"comment_content": replyContent.value,
+			"province": Province
+		}).then(res => {
+			uni.showToast({
+				title:'评论成功'
+			})
+			emit("commentEnv",{_id: res.result.id,comment_content: replyContent.value,province: Province,comment_date: Date.now()})
+			// console.log(res)
+			uni.$emit('comment_count', 1)
+			replyContent.value = ''
+			utilsObj.operation('quanzi_aticle','comment_count',props.commentObjadd.article_id,1)
 		})
 	}
 </script>

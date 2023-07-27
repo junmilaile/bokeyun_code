@@ -11,7 +11,7 @@
 					</view>
 				</view>
 				
-				<view class="more" @click="clickMore(uniIDHasRole('admin') || uniIDHasRole('webmaster'),uniIDHasRole('admin') )">
+				<view class="more" @click="clickMore(uniIDHasRole('admin') || uniIDHasRole('webmaster'))">
 					<text class="iconfont icon-ellipsis"></text>
 				</view>
 			</view>
@@ -31,7 +31,7 @@
 			
 			<view class="info">
 				<view class="box"><text class="iconfont icon-a-27-liulan"></text> <text>{{props.item.view_count}}</text></view>
-				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count === 0 ? '评论' : props.item.comment_count }}</text></view>
+				<view class="box"  @click="goDetail"><text class="iconfont icon-a-5-xinxi"></text> <text>{{props.item.comment_count && props.item.comment_count > 0 ?  props.item.comment_count : '评论'  }}</text></view>
 				<view class="box" :class="props.item.isLike ? 'active' : ''" @click="clickLike"><text class="iconfont icon-a-106-xihuan"></text> <text>{{props.item.like_count === 0 ? '点赞' : props.item.like_count}}</text></view>
 			</view>
 			
@@ -79,6 +79,13 @@
 			}
 		}
 	})
+	
+	// 改变评论数量
+	uni.$on('comment_count',(val) => {
+		// console.log('comment', val);
+		props.item.comment_count += val
+	})
+	
 	// 点击图片
 	const clickPic = (index) => {
 		uni.previewImage({
@@ -94,8 +101,7 @@
 			})
 	}
 	// 点击弹出编辑
-	const clickMore = (role,admin) => {
-		list.value.role = admin
+	const clickMore = (role) => {
 		show.value = true
 		let uid = uniCloud.getCurrentUserInfo().uid
 		if(uid === props.item.user_id[0]._id || role) {
