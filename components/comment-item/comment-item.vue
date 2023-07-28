@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view class="comment-item" >
+		<view class="comment-item" @click.stop="goReply">
 			<view class="avatar">
 				<u-avatar :src="giveAvatar(props.item)" size="26"></u-avatar>
 			</view>
@@ -40,6 +40,14 @@
 			}
 		}
 	})
+	//跳转到回复页面
+	const goReply = () => {
+		uni.setStorageSync("replyItem",props.item)
+		// uni.$emit("replyItem",props.item)
+		uni.navigateTo({
+			url:'/pages/rebly/rebly'
+		})
+	}
 	
 	const emit = defineEmits(['removeEnv'])
 	

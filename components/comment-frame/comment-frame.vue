@@ -15,8 +15,7 @@
 	const utilsObj=uniCloud.importObject("utilsObj",{
 		customUI: true
 	});	
-	
-	const placeholder = ref('评论点什么吧~')
+
 	const replyContent = ref('')
 	
 	const props = defineProps({
@@ -25,6 +24,10 @@
 			default() {
 				return {}
 			}
+		},
+		placeholder: {
+			type: String,
+			default: "评论点什么吧~"
 		}
 	})
 	

@@ -124,7 +124,7 @@
 	const commentList = ref([])
 	// 获取文章的评论数量
 	const  getComment  = async () => {
-		const commentTemp =  db.collection('quanzi_comment').where(`article_id == '${artid.value}'`).orderBy('comment_date desc').limit(5).getTemp()
+		const commentTemp =  db.collection('quanzi_comment').where(`article_id == '${artid.value}' && comment_type == 0`).orderBy('comment_date desc').limit(5).getTemp()
 		const userTemp = db.collection('uni-id-users').field('_id,avatar_file,username,nickname').getTemp()
 		const res = await db.collection(commentTemp,userTemp).where(`comment_status != ${0}`).get() 
 		console.log(res)

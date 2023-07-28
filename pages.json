@@ -142,7 +142,16 @@
 				"navigationBarTitleText": "详情"
 			}
 		}
-	],
+	    ,{
+            "path" : "pages/rebly/rebly",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "咸虾米的圈子",
