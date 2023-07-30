@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-	import {ref,defineProps,onMounted,getCurrentInstance  } from 'vue'
+	import {ref,defineProps,onMounted,getCurrentInstance,defineEmits } from 'vue'
 	import {giveName,giveAvatar,likeFun} from '../../utils/tools.js'
 	import { store } from '../../uni_modules/uni-id-pages/common/store.js';
 	// 小程序生命周期
@@ -77,12 +77,15 @@
 			default(){
 				return {}
 			}
-		}
+		},
+		isLike:Boolean,
+		like_count: Number
+		
 	})
 	
 	// 改变评论数量
 	uni.$on('comment_count',(val) => {
-		// console.log('comment', val);
+		console.log('comment', val);
 		props.item.comment_count += val
 	})
 	
@@ -124,7 +127,6 @@
 	}
 	// 删除方法
 	const delFun = () => {
-	
 			uni.showLoading({
 				title:'加载中'
 			})
@@ -145,6 +147,7 @@
 				})
 			})	
 	}
+	const emit = defineEmits(['update'])
 	// 点赞操作
 	const clickLike = () => {
 		if(!store.hasLogin) {
@@ -169,8 +172,11 @@
 			return
 		}
 		likeTime.value = time
-		props.item.isLike ? props.item.like_count-- : props.item.like_count++
-		props.item.isLike = !props.item.isLike
+		let like_count = props.item.like_count
+		props.item.isLike ? like_count-- : like_count++
+		let isLike = !props.item.isLike
+		emit('updateisLike',{isLike: isLike,id: props.item._id})
+		emit('updatelike_count',{like_count: like_count, id:props.item._id})
 		// 调用点赞方法
 		likeFun(props.item._id)
 	}

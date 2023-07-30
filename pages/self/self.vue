@@ -37,7 +37,7 @@
 			<view class="main">
 				<view class="info">
 					<view class="item"><text>{{totalObj.likeNum}}</text>获赞</view>
-					<view class="item"><text>11</text>评论</view>
+					<view class="item"><text>{{totalObj.comment}}</text>评论</view>
 					<view class="item"><text>{{totalObj.artNum}}</text>发文</view>
 				</view>
 				
@@ -103,7 +103,8 @@
 	})
 	const totalObj = ref({
 		artNum: 0,
-		likeNum: 0
+		likeNum: 0,
+		comment: 0
 	})
 	// 退出登录
 	const logout = () => {
@@ -170,6 +171,10 @@
 		.groupField('sum(like_count) as totalScore').get()
 		
 		totalObj.value.likeNum = likeCount.result.data[0].totalScore
+		
+		const comment = await db.collection('quanzi_comment').where(`user_id == $cloudEnv_uid && comment_status == 1`).count()
+	
+		totalObj.value.comment = comment.result.total
 	}
 </script>
 

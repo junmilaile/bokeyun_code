@@ -52,13 +52,17 @@
 				
 				<view class="content" v-else>
 					<view class="item" v-for="item in commentList">
-						<comment-item :item="item" @removeEnv="PremoveEnv"></comment-item>									
+						<comment-item :item="item" :totalReply="item?.totalReply" @removeEnv="PremoveEnv"></comment-item>									
 					</view>
-				</view>
 				
+				</view>
+				<view>
+					<uni-load-more v-if="showLoading" :status="uniLoading"></uni-load-more>
+				</view>
+			
 			</view>
 			
-			
+		
 			
 			<comment-frame :commentObjadd="commentObj" @commentEnv="PcommentEnv"></comment-frame>
 		</view>
@@ -67,7 +71,7 @@
 <script setup>
 	import {ref} from 'vue'
 	// 小程序生命周期
-	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	import {onLoad,onHide,onShow,onReachBottom} from  '@dcloudio/uni-app'
 	import {giveName,giveAvatar,likeFun} from '../../utils/tools.js'
 	import { store } from '../../uni_modules/uni-id-pages/common/store.js';
 	import pageJson from '@/pages.json'
@@ -76,7 +80,7 @@
 		customUI: true 
 	})
 	const db = uniCloud.database()
-	
+	const showLoading = ref(false)
 	const add = ref(true)
 	const artid = ref('')
 	const loadState = ref(true)
@@ -89,6 +93,8 @@
 		comment_type: 0
 	})
 	const noComment = ref(false)
+	const uniLoading = ref('more')
+	const noMore = ref(false)
 	
 	onLoad( (e) => {
 		if(!e.id) {
@@ -108,7 +114,7 @@
 	//删除的评论的回调
 	const PremoveEnv = (e) => {
 		commentList.value = commentList.value.filter(item =>  item._id !== e._id)
-		console.log(e)
+		// console.log(e)
 	}
 	
 	// 评论成功的回调
@@ -124,15 +130,69 @@
 	const commentList = ref([])
 	// 获取文章的评论数量
 	const  getComment  = async () => {
-		const commentTemp =  db.collection('quanzi_comment').where(`article_id == '${artid.value}' && comment_type == 0`).orderBy('comment_date desc').limit(5).getTemp()
+		const commentTemp =  db.collection('quanzi_comment').where(`article_id == '${artid.value}' && comment_type == 0`).orderBy('comment_date desc').getTemp()
 		const userTemp = db.collection('uni-id-users').field('_id,avatar_file,username,nickname').getTemp()
-		const res = await db.collection(commentTemp,userTemp).where(`comment_status != ${0}`).get() 
+		const res = await db.collection(commentTemp,userTemp).where(`comment_status != ${0}`).skip(commentList.value.length).limit(5).get() 
 		console.log(res)
-		commentList.value = res.result.data
-		console.log(commentList.value)
+				
+		
+		let idArr = res.result.data.map(item => {
+			return item._id
+		})
+		if(res.result.data.length === 0) {
+			noMore.value = true
+		}
+		if(res.result.data.length === 5) {
+			showLoading.value = true
+		}
+		
+		const resArr = await db.collection('quanzi_comment').where({
+			reply_comment_id: db.command.in(idArr),
+			comment_status: 1
+		}).groupBy('reply_comment_id')
+		  .groupField('count(*) as totalReply').get()
+		
+		// console.log(resArr.result)
+		res.result.data.forEach(item => {
+			let index = resArr.result.data.findIndex(find => {
+				return find.reply_comment_id === item._id
+			})
+			if(index > -1) item.totalReply = resArr.result.data[index].totalReply
+		})
+
+		// console.log(commentList.value)
 		if(!commentList.value.length) noComment.value = true
+		let olbArr = [...commentList.value,...res.result.data]
+		commentList.value = olbArr
 	}
 	
+	//触底加载更多
+	onReachBottom( async () => {
+		uniLoading.value = 'loading'
+	
+		if(noMore.value) {
+			uniLoading.value = 'noMore'
+			return
+		}
+		 await getComment()
+		if(noMore.value) {
+			uniLoading.value = 'noMore'
+			return
+		}
+		console.log(noMore.value)
+		// console.log(uniLoading.value)
+	})
+	
+	//改变回复数量
+	uni.$on('totalReply',(val) => {
+		// console.log(val)
+		commentList.value.forEach(item => {
+			if(item.article_id === val.article_id) {
+				item.totalReply += val.count
+			}
+		})
+		
+	})
 	
 	// 获取部分点赞的用户
 	const getLikeUser = async () => {
@@ -150,7 +210,7 @@
 	// 修改阅读量
 	const update = () => {
 		utilsObj.operation('quanzi_aticle','view_count',artid.value,1).then(res => {
-			console.log(res)
+			// console.log(res)
 		})
 	}
 	
@@ -232,6 +292,8 @@
 		// 调用点赞方法
 		likeFun(artid.value)
 	}
+	
+	
 </script>
 
 <style lang="scss">

@@ -46,6 +46,8 @@
 	import {getImgSrc,getProvince} from '@/utils/tools.js'
 	// 小程序生命周期
 	import {onLoad,onHide,onShow} from  '@dcloudio/uni-app'
+	
+		
 	const db = uniCloud.database()
 	
 	onLoad(() => {
@@ -225,6 +227,7 @@
 		}
 		.content {
 			.myEdita {
+			
 				height: calc(100vh - 500rpx);
 				margin-bottom: 30rpx;
 			}

@@ -8,11 +8,11 @@
 			<view class="wrap">
 				<view class="username">
 					{{giveName(props.item)}}
-					<text  class="iconfont icon-a-43-guanbi" @click.stop="delComment(uniIDHasRole('admin') || uniIDHasRole('webmaster'))"></text>
+					<text v-if="!closeBtn" class="iconfont icon-a-43-guanbi" @click.stop="delComment(uniIDHasRole('admin') || uniIDHasRole('webmaster'))"></text>
 				</view>
 				<view class="comment-content">{{props.item.comment_content}}</view>
 				<view class="info">
-					<view class="reply-btn" >{{props.item.totalReply || ''}}回复 </view>
+					<view class="reply-btn" v-if="!childState">{{props.item.totalReply || ''}}回复 </view>
 					<view>
 						<uni-dateformat :date="props.item.comment_date" :threshold="[60000,3600000*24*30]">
 						</uni-dateformat>
@@ -38,10 +38,23 @@
 			default() {
 				return{}
 			}
+		},
+		childState: {
+			type: Boolean,
+			default:false
+		},
+		closeBtn: {
+			type: Boolean,
+			default:false
+		},
+		totalReply: {
+			type: Number,
+			default: 0
 		}
 	})
 	//跳转到回复页面
 	const goReply = () => {
+		if(props.childState) return
 		uni.setStorageSync("replyItem",props.item)
 		// uni.$emit("replyItem",props.item)
 		uni.navigateTo({
@@ -70,13 +83,11 @@
 				title:"权限不够",
 				icon:'error'
 			})
-		
-		
-		
 	}
 	
 	// 删除逻辑
 	const removeComment = () => {
+		console.log(props.item)
 		db.collection('quanzi_comment').doc(props.item._id).update({
 			comment_status: 0
 		}).then(res => {
@@ -84,10 +95,13 @@
 				title:'删除成功'
 			})
 			emit('removeEnv',{_id: props.item._id})
-			uni.$emit('comment_count', -1)
-			if(props.item.comment_count > 0) utilsObj.operation('quanzi_aticle','comment_count',props.item.article_id,-1)
+			uni.$emit('comment_count',-1)
+			uni.$emit('totalReply',{count: -1,article_id: props.item.article_id})
+			utilsObj.operation('quanzi_aticle','comment_count',props.item.article_id,-1)
 		})
 	}
+	
+	
 </script>
 
 <style lang="scss" scoped>

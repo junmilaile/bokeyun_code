@@ -24,11 +24,11 @@
 		
 		<view class="content">
 			<view class="item" v-for="item in dataList">
-				<blog-item :item="item" ></blog-item>
+				<blog-item :item="item" :isLike="item.isLike" :like_count="item.like_count" @updateisLike="isLike" @updatelike_count="like_count"></blog-item>
 			</view>
 		</view>
-		<view class="">
-			<uni-load-more :status="uniLoading"></uni-load-more>
+		<view >
+			<uni-load-more v-if="showLoading" :status="uniLoading"></uni-load-more>
 		</view>
 		<view class="edit" @click="editadd">
 			<text class="iconfont icon-a-21-xiugai"></text>
@@ -45,7 +45,7 @@
 	
 	const db = uniCloud.database()
 	const dbCmd = db.command
-	
+	const showLoading = ref(false)
 	onLoad( async () => {
 		await getData()
 	})
@@ -83,47 +83,69 @@
 	
 	//触底加载更多
 	onReachBottom( async () => {
-		console.log(noMore.value)
+		// console.log(noMore.value)
 		uniLoading.value = 'loading'
 		if(noMore.value) {
 			uniLoading.value = 'noMore'
 			return
 		}
 		 await getData()
+		if(noMore.value) {
+			uniLoading.value = 'noMore'
+			return
+		}
 	})
-
-	
+	// 改变点赞手的颜色
+	const isLike = (val) => {
+		// console.log(val)
+		dataList.value.forEach(item => {
+			if(item._id === val.id) {
+				item.isLike = val.isLike
+			}
+		})
+	}
+	//无感改变点赞的数量
+	const like_count = (val) => {
+		console.log(val)
+		dataList.value.forEach(item => {
+			if(item._id === val.id) {
+				item.like_count = val.like_count
+			}
+		})
+	}
 	//获取文章表的数据
 	const getData = async () => {
 	 	let artTemp = db.collection('quanzi_aticle').field("title,user_id,description,picurls,view_count,like_count,comment_count,publish_date,delState").getTemp()
 		let userTemp = db.collection('uni-id-users').field("_id,username,nickname,avatar_file").getTemp() 
 			
 			await db.collection(artTemp,userTemp).where(`delState != true`).orderBy( navlist.value[navAction.value].type ,"desc").skip(dataList.value.length).limit(5).get().then(async res => {
-				
 				let idArr = []
 				console.log(res)
 			
 				if(res.result.data.length === 0) {
 					noMore.value = true
 				}
+				if(res.result.data.length === 5) {
+					showLoading.value = true
+				}
+				
 				// console.log(noMore.value)
 				let resDataArr = [...dataList.value,...res.result.data]
 				
 				if(store.hasLogin){
-				resDataArr.forEach(item => {
-					idArr.push(item._id)
-				})
-				
-				const likeRes = await db.collection('quanzi_like').where({
-					article_id:dbCmd.in(idArr),
-					user_id: uniCloud.getCurrentUserInfo().uid
-				}).get()
-				
-				likeRes.result.data.forEach(item => {
-					let findIndex = resDataArr.findIndex(find => item.article_id === find._id)
-					resDataArr[findIndex].isLike = true
-				})
-				
+					resDataArr.forEach(item => {
+						idArr.push(item._id)
+					})
+					
+					const likeRes = await db.collection('quanzi_like').where({
+						article_id:dbCmd.in(idArr),
+						user_id: uniCloud.getCurrentUserInfo().uid
+					}).get()
+					
+					likeRes.result.data.forEach(item => {
+						let findIndex = resDataArr.findIndex(find => item.article_id === find._id)
+						resDataArr[findIndex].isLike = true
+					})
 			}
 			// console.log(idArr)
 			dataList.value = resDataArr
@@ -142,7 +164,6 @@
 	}
 	
 	uni.$on('delEvent',(val) => {
-		
 		// console.log(val)
 	 	dataList.value = dataList.value.filter(item =>  item.user_id[0]._id !== val)
 		// console.log(dataList.value)

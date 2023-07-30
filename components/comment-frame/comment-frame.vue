@@ -53,8 +53,10 @@
 			})
 			emit("commentEnv",{_id: res.result.id,comment_content: replyContent.value,province: Province,comment_date: Date.now()})
 			// console.log(res)
-			uni.$emit('comment_count', 1)
+			
 			replyContent.value = ''
+			uni.$emit('comment_count', 1)
+			uni.$emit('totalReply',{count: 1,article_id: props.commentObjadd.article_id})
 			utilsObj.operation('quanzi_aticle','comment_count',props.commentObjadd.article_id,1)
 		})
 	}

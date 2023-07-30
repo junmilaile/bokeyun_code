@@ -154,7 +154,7 @@
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
-		"navigationBarTitleText": "咸虾米的圈子",
+		"navigationBarTitleText": "博客云",
 		"navigationBarBackgroundColor": "#3c9cff",
 		"backgroundColor": "#F8F8F8"
 	},
